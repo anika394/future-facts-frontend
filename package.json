@@ -2,16 +2,16 @@
   "name": "future-facts-frontend",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "export": "next export",
-    "start": "next start"
-  },
+"scripts": {
+  "build": "next build && next export",
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d out"
+},
+
 
   "homepage": "https://anika394.github.io/future-facts-frontend",
-
   "dependencies": {
+    "@gradio/client": "^1.19.1",
     "axios": "^1.12.2",
     "next": "15.5.4",
     "react": "19.1.0",
@@ -22,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

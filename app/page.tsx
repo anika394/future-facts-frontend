@@ -1,68 +1,79 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
+import { Client } from "@gradio/client";
 
 export default function Home() {
   const [nameA, setNameA] = useState("");
+  const [infoA, setInfoA] = useState("");
   const [nameB, setNameB] = useState("");
-  const [fact, setFact] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [infoB, setInfoB] = useState("");
+  const [result, setResult] = useState("");
 
-  async function generateFact() {
-    setLoading(true);
-    setFact("");
-
+  const handleSubmit = async () => {
+    setResult("Loading...");
     try {
-      const response = await axios.post(
-        "https://huggingface.co/spaces/YOUR-USERNAME/future-fact-backend/api/predict",
-        {
-          data: [nameA, nameB],
-        }
-      );
-      const result = response.data.data[0];
-      setFact(result);
+      // Connect to your Hugging Face backend
+      const client = await Client.connect("anika394/future-fact-backend");
+
+      // Call the /predict function
+      const response = await client.predict("/predict", {
+        name_a: nameA,
+        info_a: infoA,
+        name_b: nameB,
+        info_b: infoB,
+      });
+
+      // Display the returned fact
+      setResult(response.data[0]);
     } catch (err) {
       console.error(err);
-      setFact("Error: Could not reach the backend.");
-    } finally {
-      setLoading(false);
+      setResult("⚠️ Could not reach backend.");
     }
-  }
+  };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-b from-purple-100 to-indigo-200 text-center">
-      <h1 className="text-3xl font-bold mb-4">🔮 Future Fact Generator</h1>
-      <p className="mb-6 text-gray-600">Enter two names to reveal a probable future fact...</p>
+    <main className="flex flex-col items-center justify-center min-h-screen p-8">
+      <h1 className="text-3xl font-bold mb-6">🔮 Future Fact Generator</h1>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="grid grid-cols-1 gap-4 w-full max-w-md">
         <input
-          className="border border-gray-400 rounded p-2"
-          placeholder="First person's full name"
+          type="text"
+          placeholder="Person A Full Name"
+          className="border p-2 rounded"
           value={nameA}
           onChange={(e) => setNameA(e.target.value)}
         />
+        <textarea
+          placeholder="Person A Info"
+          className="border p-2 rounded"
+          value={infoA}
+          onChange={(e) => setInfoA(e.target.value)}
+        />
         <input
-          className="border border-gray-400 rounded p-2"
-          placeholder="Second person's full name"
+          type="text"
+          placeholder="Person B Full Name"
+          className="border p-2 rounded"
           value={nameB}
           onChange={(e) => setNameB(e.target.value)}
+        />
+        <textarea
+          placeholder="Person B Info"
+          className="border p-2 rounded"
+          value={infoB}
+          onChange={(e) => setInfoB(e.target.value)}
         />
       </div>
 
       <button
-        onClick={generateFact}
-        disabled={loading}
-        className="bg-purple-600 text-white py-2 px-4 rounded shadow hover:bg-purple-700 transition"
+        onClick={handleSubmit}
+        className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600"
       >
-        {loading ? "Generating..." : "Generate Future Fact"}
+        Generate Future Fact
       </button>
 
-      {fact && (
-        <div className="mt-6 p-4 bg-white shadow rounded max-w-md">
-          <h2 className="font-semibold text-lg mb-2">✨ Your Future Fact:</h2>
-          <p className="text-gray-800">{fact}</p>
-        </div>
-      )}
+      <div className="mt-6 w-full max-w-md text-center">
+        <p className="text-lg">{result}</p>
+      </div>
     </main>
   );
 }
