@@ -24,7 +24,7 @@ export default function Home() {
       });
 
       // Display the returned fact
-      setResult(response.data[0]);
+      setResult((response.data as any[])[0]);
     } catch (err) {
       console.error(err);
       setResult("⚠️ Could not reach backend.");
